@@ -8,9 +8,8 @@ import (
 	"flag"
 	"log"
 
-	"terraform-provider-casaos/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/rstuhlmuller/terraform-provider-casaos/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website

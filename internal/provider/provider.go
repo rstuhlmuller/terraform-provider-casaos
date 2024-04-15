@@ -7,36 +7,32 @@ import (
 	"context"
 	"os"
 
-	// 	"net/http"
+	casaos "github.com/rstuhlmuller/terraform-provider-casaos/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-
-	// "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-
 	"github.com/hashicorp/terraform-plugin-framework/function"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	// "github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// // Ensure CasaOSProvider satisfies various provider interfaces.
-var _ provider.Provider = &CasaOSProvider{}
+// // Ensure casaosProvider satisfies various provider interfaces.
+var _ provider.Provider = &casaosProvider{}
 
-// var _ provider.ProviderWithFunctions = &CasaOSProvider{}
+// var _ provider.ProviderWithFunctions = &casaosProvider{}
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &CasaOSProvider{
+		return &casaosProvider{
 			version: version,
 		}
 	}
 }
 
-// CasaOSProvider defines the provider implementation.
-type CasaOSProvider struct {
+// casaosProvider defines the provider implementation.
+type casaosProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
@@ -50,12 +46,12 @@ type casaosProviderModel struct {
 	Password types.String `tfsdk:"password"`
 }
 
-func (p *CasaOSProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *casaosProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "casaos"
 	resp.Version = p.version
 }
 
-func (p *CasaOSProvider) Schema(_ context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *casaosProvider) Schema(_ context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
@@ -75,7 +71,7 @@ func (p *CasaOSProvider) Schema(_ context.Context, req provider.SchemaRequest, r
 	}
 }
 
-func (p *CasaOSProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+func (p *casaosProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	// Where we authenticate using username - password etc.
 
 	var config casaosProviderModel
@@ -133,23 +129,67 @@ func (p *CasaOSProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	if !config.Password.IsNull() {
 		password = config.Password.ValueString()
 	}
+
+	if host == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("host"),
+			"Missing CasaOS API Host",
+			"The provider cannot create the CasaOS API client as there is a missing or empty value for the CasaOS API host. "+
+				"Set the host value in the configuration or use the CASAOS_HOST environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+	if username == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("username"),
+			"Missing CasaOS API Username",
+			"The provider cannot create the CasaOS API client as there is a missing or empty value for the CasaOS API username. "+
+				"Set the username value in the configuration or use the CASAOS_USERNAME environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+	if password == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Missing CasaOS API Password",
+			"The provider cannot create the CasaOS API client as there is a missing or empty value for the CasaOS API password. "+
+				"Set the password value in the configuration or use the CASAOS_PASSWORD environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	client, err := casaos.NewClient(&host, &username, &password)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create CasaOS API Client",
+			"An unexpected error occurred when creating the CasaOS API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"CasaOS Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.DataSourceData = client
+	resp.ResourceData = client
 }
 
-func (p *CasaOSProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *casaosProvider) Resources(ctx context.Context) []func() resource.Resource {
 	// return []func() resource.Resource{
 	// 	NewExampleResource,
 	// }
 	return nil
 }
 
-func (p *CasaOSProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	// return []func() datasource.DataSource{
-	// 	NewExampleDataSource,
-	// }
-	return nil
+func (p *casaosProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+	return []func() datasource.DataSource{
+		NewCasaOSDataSource,
+	}
 }
 
-func (p *CasaOSProvider) Functions(ctx context.Context) []func() function.Function {
+func (p *casaosProvider) Functions(ctx context.Context) []func() function.Function {
 	// return []func() function.Function{
 	// 	NewExampleFunction,
 	// }

@@ -1,4 +1,4 @@
-module terraform-provider-casaos
+module github.com/rstuhlmuller/terraform-provider-casaos
 
 go 1.21
 
