@@ -185,7 +185,7 @@ func (p *casaosProvider) Resources(ctx context.Context) []func() resource.Resour
 
 func (p *casaosProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewCasaOSDataSource,
+		NewHardwareDataSource,
 	}
 }
 
