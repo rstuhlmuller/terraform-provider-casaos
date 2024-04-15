@@ -7,10 +7,9 @@ terraform {
 }
 
 provider "casaos" {
-  # host     = "http://casaos.local:80"
-  # username = "themanofrod"
-  # password = "pU$$ylUvr69"
+  host     = "http://casaos.local"
+  username = "themanofrod"
+  password = "pU$$ylUvr69"
 }
 
-# data "casaos_hardware" "main" {
-# }
+data "casaos_hardware" "main" {}
