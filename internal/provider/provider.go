@@ -5,89 +5,97 @@ package provider
 
 import (
 	"context"
-	"net/http"
+	// 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	// "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	// "github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// Ensure ScaffoldingProvider satisfies various provider interfaces.
-var _ provider.Provider = &ScaffoldingProvider{}
-var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
+// // Ensure CasaOSProvider satisfies various provider interfaces.
+var _ provider.Provider = &CasaOSProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
-type ScaffoldingProvider struct {
+// var _ provider.ProviderWithFunctions = &CasaOSProvider{}
+
+func New(version string) func() provider.Provider {
+	return func() provider.Provider {
+		return &CasaOSProvider{
+			version: version,
+		}
+	}
+}
+
+// CasaOSProvider defines the provider implementation.
+type CasaOSProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
 }
 
-// ScaffoldingProviderModel describes the provider data model.
-type ScaffoldingProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
-}
+// // CasaOSProviderModel describes the provider data model.
+// type CasaOSProviderModel struct {
+// 	Endpoint types.String `tfsdk:"endpoint"`
+// }
 
-func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
+func (p *CasaOSProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "casaos"
 	resp.Version = p.version
 }
 
-func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
-				Optional:            true,
-			},
-		},
-	}
+func (p *CasaOSProvider) Schema(_ context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{}
+	// Attributes: map[string]schema.Attribute{
+	// 	"endpoint": schema.StringAttribute{
+	// 		MarkdownDescription: "Example provider attribute",
+	// 		Optional:            true,
+	// 	},
+	// },
+	// }
 }
 
-func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ScaffoldingProviderModel
+func (p *CasaOSProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	// Where we authenticate using username - password etc.
 
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	// var data CasaOSProviderModel
 
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	// if resp.Diagnostics.HasError() {
+	// 	return
+	// }
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	// // Configuration values are now available.
+	// // if data.Endpoint.IsNull() { /* ... */ }
+
+	// // Example client configuration for data sources and resources
+	// client := http.DefaultClient
+	// resp.DataSourceData = client
+	// resp.ResourceData = client
 }
 
-func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		NewExampleResource,
-	}
+func (p *CasaOSProvider) Resources(ctx context.Context) []func() resource.Resource {
+	// return []func() resource.Resource{
+	// 	NewExampleResource,
+	// }
+	return nil
 }
 
-func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		NewExampleDataSource,
-	}
+func (p *CasaOSProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+	// return []func() datasource.DataSource{
+	// 	NewExampleDataSource,
+	// }
+	return nil
 }
 
-func (p *ScaffoldingProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
-}
-
-func New(version string) func() provider.Provider {
-	return func() provider.Provider {
-		return &ScaffoldingProvider{
-			version: version,
-		}
-	}
+func (p *CasaOSProvider) Functions(ctx context.Context) []func() function.Function {
+	// return []func() function.Function{
+	// 	NewExampleFunction,
+	// }
+	return nil
 }

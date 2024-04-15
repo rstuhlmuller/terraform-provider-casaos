@@ -1,3 +1,3 @@
-provider "scaffolding" {
+provider "casaos" {
   # example configuration here
 }
