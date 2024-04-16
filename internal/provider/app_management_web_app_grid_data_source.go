@@ -154,10 +154,10 @@ type coffeesIngredientsModel struct {
 	ID types.Int64 `tfsdk:"id"`
 }
 
-func (d *AppManagement) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *appManagementWebAppGridDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state appManagementWebAppGridDataSourceModel
 
-	apps, err := d.client.GetAppGrid()
+	apps, err := d.client.GetAppManagementWebAppGrid()
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to retrieve app management web app grid", err.Error())
 		return
