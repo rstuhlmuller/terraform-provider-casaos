@@ -12,4 +12,4 @@ provider "casaos" {
   password = "pU$$ylUvr69"
 }
 
-data "casaos_hardware" "main" {}
+data "casaos_app_management_web_app_grid" "main" {}
