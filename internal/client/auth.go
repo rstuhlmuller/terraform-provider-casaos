@@ -1,7 +1,6 @@
 package casaos
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,7 +18,7 @@ func (c *Client) SignIn() (*AuthResponse, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/users/login", c.HostURL), bytes.NewBuffer(rb))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/users/login", c.HostURL), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, err
 	}
