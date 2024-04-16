@@ -25,10 +25,14 @@ type AuthStruct struct {
 }
 
 // AuthResponse -
+type TokenStuff struct {
+	Token string `json:"access_token"`
+}
+type Data struct {
+	TokenStuff TokenStuff `json:"token"`
+}
 type AuthResponse struct {
-	UserID   int    `json:"user_id`
-	Username string `json:"username`
-	Token    string `json:"token"`
+	Data Data `json:"data"`
 }
 
 // NewClient -
@@ -58,7 +62,7 @@ func NewClient(host, username, password *string) (*Client, error) {
 		return nil, err
 	}
 
-	c.Token = ar.Token
+	c.Token = ar.Data.TokenStuff.Token
 
 	return &c, nil
 }
