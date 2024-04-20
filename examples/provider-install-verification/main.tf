@@ -13,3 +13,7 @@ provider "casaos" {
 }
 
 data "casaos_app_management_web_app_grid" "main" {}
+
+output "test" {
+  value = data.casaos_app_management_web_app_grid.main
+}

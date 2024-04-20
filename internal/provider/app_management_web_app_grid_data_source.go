@@ -157,7 +157,7 @@ type coffeesIngredientsModel struct {
 func (d *appManagementWebAppGridDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state appManagementWebAppGridDataSourceModel
 
-	apps, err := d.client.GetAppManagementWebAppGrid()
+	apps, err := GetAppManagementWebAppGrid()
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to retrieve app management web app grid", err.Error())
 		return
@@ -184,4 +184,19 @@ func (d *appManagementWebAppGridDataSource) Read(ctx context.Context, req dataso
 		}
 		state.AppManagementWebAppGrid = append(state.AppManagementWebAppGrid, AppManagementWebAppGridState)
 	}
+	// Set state
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func GetAppManagementWebAppGrid() ([]casaos.AppManagementWebAppGrid, error) {
+	apps, err := casaos.GetAppManagementWebAppGrid()
+	if err != nil {
+		return nil, err
+	}
+
+	return apps, nil
 }
