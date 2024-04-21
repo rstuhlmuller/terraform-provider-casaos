@@ -2,88 +2,75 @@ package provider
 
 import (
 	"context"
-	"errors"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/rstuhlmuller/terraform-provider-casaos/internal/conns"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
-func New(ctx context.Context) (*schema.Provider, error) {
-	provider := &schema.Provider{
-		Schema: map[string]*schema.Schema{
-			"host": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The hostname of the CasaOS device. (default: http://casaos.local)",
-			},
-			"username": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The username to authenticate with the CasaOS device.",
-			},
-			"password": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The password to authenticate with the CasaOS device.",
-			},
-		},
-		DataSourcesMap: map[string]*schema.Resource{},
-		ResourcesMap:   map[string]*schema.Resource{},
-	}
-	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		return configure(ctx, provider, d)
-	}
+// Ensure the implementation satisfies the expected interfaces.
+var (
+	_ provider.Provider = &casaosProvider{}
+)
 
-	var errs []error
-
-	if err := errors.Join(errs...); err != nil {
-		return nil, err
+// New is a helper function to simplify provider server and testing implementation.
+func New(version string) func() provider.Provider {
+	return func() provider.Provider {
+		return &casaosProvider{
+			version: version,
+		}
 	}
-
-	// Set the provider Meta (instance data) here.
-	// It will be overwritten by the result of the call to ConfigureContextFunc,
-	// but can be used pre-configuration by other (non-primary) provider servers.
-	var meta *conns.CasaOSClient
-	if v, ok := provider.Meta().(*conns.CasaOSClient); ok {
-		meta = v
-	} else {
-		meta = new(conns.CasaOSClient)
-	}
-	meta.ServicePackages = servicePackageMap
-	provider.SetMeta(meta)
-
-	return provider, nil
 }
 
-func configure(ctx context.Context, provider *schema.Provider, d *schema.ResourceData) (*conns.CasaOSClient, diag.Diagnostics) {
-	var diags diag.Diagnostics
+// casaosProvider is the provider implementation.
+type casaosProvider struct {
+	// version is set to the provider version on release, "dev" when the
+	// provider is built and ran locally, and "test" when running acceptance
+	// testing.
+	version string
+}
 
-	terraformVersion := provider.TerraformVersion
-	if terraformVersion == "" {
-		// Terraform 0.12 introduced this field to the protocol
-		// We can therefore assume that if it's missing it's 0.10 or 0.11
-		terraformVersion = "0.11+compatible"
-	}
+type casaosProviderModel struct {
+	Host     string `tfsdk:"host"`
+	Username string `tfsdk:"username"`
+	Password string `tfsdk:"password"`
+}
 
-	config := conns.Config{
-		Host:     d.Get("host").(string),
-		Username: d.Get("username").(string),
-		Password: d.Get("password").(string),
-	}
+// Metadata returns the provider type name.
+func (p *casaosProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "casaos"
+	resp.Version = p.version
+}
 
-	var meta *conns.CasaOSClient
-	if v, ok := provider.Meta().(*conns.CasaOSClient); ok {
-		meta = v
-	} else {
-		meta = new(conns.CasaOSClient)
+// Schema defines the provider-level schema for configuration data.
+func (p *casaosProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"host": schema.StringAttribute{
+				Optional: true,
+			},
+			"username": schema.StringAttribute{
+				Optional: true,
+			},
+			"password": schema.StringAttribute{
+				Optional:  true,
+				Sensitive: true,
+			},
+		},
 	}
-	meta, ds := config.ConfigureProvider(ctx, meta)
-	diags = append(diags, ds...)
-	if diags.HasError() {
-		return nil, diags
-	}
+}
 
-	return meta, diags
+// Configure prepares a Casaos API client for data sources and resources.
+func (p *casaosProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+}
+
+// DataSources defines the data sources implemented in the provider.
+func (p *casaosProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+	return nil
+}
+
+// Resources defines the resources implemented in the provider.
+func (p *casaosProvider) Resources(_ context.Context) []func() resource.Resource {
+	return nil
 }
