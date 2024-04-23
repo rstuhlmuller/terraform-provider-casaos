@@ -21,6 +21,7 @@ func (c *Client) SignIn() (*AuthResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	body, err := c.doRequest(req, nil)
 	if err != nil {
