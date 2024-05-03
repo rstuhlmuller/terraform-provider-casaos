@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	casaos "github.com/IceWhaleTech/CasaOS-AppManagement/route/v2"
+	"github.com/rstuhlmuller/terraform-provider-casaos/internal/casaos"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
