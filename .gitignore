@@ -1,2 +1,3 @@
 
 examples/provider-install-verification/init.tf
+.DS_Store
